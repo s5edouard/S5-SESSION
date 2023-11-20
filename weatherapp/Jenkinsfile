@@ -33,6 +33,8 @@ pipeline {
                     image 'node:17'
                     label 'production'
                     args '-u root' // Set the user to root
+                }
+            }
             steps {
                 echo 'Testing...'
                 script {
@@ -52,6 +54,8 @@ pipeline {
                     image 'python:3.8-slim-buster'
                     label 'production'
                     args '-u root' // Set the user to root
+                }
+            }
             steps {
                 echo 'testing weather...'
                 script {
@@ -62,7 +66,6 @@ pipeline {
                         pip3 install -r requirements.txt
                     '''
                 }
-            
             }
         }
     }
