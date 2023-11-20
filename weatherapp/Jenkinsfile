@@ -27,17 +27,42 @@ pipeline {
             }
         }
 
-        stage('Test') {
+        stage('Test-ui') {
+            agent {
+                docker {
+                    image 'node:17'
+                    label 'production'
+                    args '-u root' // Set the user to root
             steps {
                 echo 'Testing...'
-                // Add your test commands here
+                script {
+                    // Add your build commands here
+                    sh '''
+                        id
+                        cd weatherapp/UI
+                        npm run
+                    '''
+                }
             }
         }
 
-        stage('Deploy') {
+        stage('test-weather') {
+            agent {
+                docker {
+                    image 'python:3.8-slim-buster'
+                    label 'production'
+                    args '-u root' // Set the user to root
             steps {
-                echo 'Deploying...'
-                // Add your deployment commands here
+                echo 'testing weather...'
+                script {
+                    // Add your build commands here
+                    sh '''
+                        id
+                        cd weatherapp/weather
+                        pip3 install -r requirements.txt
+                    '''
+                }
+            
             }
         }
     }
