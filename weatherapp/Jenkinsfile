@@ -3,7 +3,7 @@ pipeline {
         label 'production'
     }
     environment {
-        DOCKERHUB_CREDENTIALS = credentials('Dockerhub')
+        DOCKERHUB_CREDENTIALS=credentials('Dockerhub')
     }
     stages {
         stage('Build-auth') {
@@ -95,7 +95,6 @@ pipeline {
                         // Use $DOCKERHUB_CREDENTIALS in your Docker commands
                         sh '''
                         cd weatherapp/auth
-                        docker login -u ${DOCKERHUB_CREDENTIALS_USR} -p ${DOCKERHUB_CREDENTIALS_PSW}
                         docker build -t edjiguimkoudre8/adele93:${BUILD_NUMBER} .
                         docker push edjiguimkoudre8/adele93:${BUILD_NUMBER}
                         '''
@@ -103,6 +102,12 @@ pipeline {
                 }
             }
         }
+        stage('Login') {
+
+			steps {
+				sh 'echo $DOCKERHUB_CREDENTIALS_PSW | docker login -u $DOCKERHUB_CREDENTIALS_USR --password-stdin'
+			}
+		}
         stage('Build and Push UI') {
             steps {
                 script {
@@ -110,7 +115,6 @@ pipeline {
                         // Use $DOCKERHUB_CREDENTIALS in your Docker commands
                         sh '''
                         cd weatherapp/UI
-                        docker login -u ${DOCKERHUB_CREDENTIALS_USR} -p ${DOCKERHUB_CREDENTIALS_PSW}
                         docker build -t edjiguimkoudre8/adele93:${BUILD_NUMBER} .
                         docker push edjiguimkoudre8/adele93:${BUILD_NUMBER}
                         '''
@@ -125,7 +129,6 @@ pipeline {
                         // Use $DOCKERHUB_CREDENTIALS in your Docker commands
                         sh '''
                         cd weatherapp/weather
-                        docker login -u ${DOCKERHUB_CREDENTIALS_USR} -p ${DOCKERHUB_CREDENTIALS_PSW}
                         docker build -t edjiguimkoudre8/adele93:${BUILD_NUMBER} .
                         docker push edjiguimkoudre8/adele93:${BUILD_NUMBER}
                         '''
