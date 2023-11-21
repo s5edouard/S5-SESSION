@@ -77,11 +77,11 @@ pipeline {
             }
             environment {
                 CI = 'true'
-                scannerHome = '/opt/sonarqube'
+                scannerHome = '/opt/sonar-scanner'
             }
             steps {
-                withSonarQubeEnv('sonarqube') {
-                    sh "${scannerHome}/bin/sonarqube -Dsonar.projectKey=s5edouard"
+                withSonarQubeEnv('Sonar') {
+                    sh "${scannerHome}/bin/sonar-scanner"
                 }
             }
         }
