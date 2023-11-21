@@ -118,7 +118,7 @@ pipeline {
                 }
             }
         }
-        stage('Build and Push UI') {
+        stage('Build and Push weather') {
             steps {
                 script {
                     withCredentials([string(credentialsId: 'DOCKERHUB_CREDENTIALS', variable: 'DOCKERHUB_CREDENTIALS')]) {
