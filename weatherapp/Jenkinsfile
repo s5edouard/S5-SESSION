@@ -2,86 +2,134 @@ pipeline {
     agent {
         label 'production'
     }
+    environment {
+        DOCKERHUB_CREDENTIALS = credentials('dockerhub')
+    }
+    // stages {
+    //     stage('Build-auth') {
+    //         agent {
+    //             docker {
+    //                 image 'golang:alpine'
+    //                 label 'production'
+    //                 args '-u root' // Set the user to root
+    //             }
+    //         }
+    //         steps {
+    //             echo 'Building...'
+    //             script {
+    //                 // Add your build commands here
+    //                 sh '''
+    //                     id
+    //                     cd weatherapp/auth/src/main
+    //                     go build
+    //                     cd -
+    //                     ls -la
+    //                 '''
+    //             }
+    //         }
+    //     }
 
-    stages {
-        stage('Build-auth') {
-            agent {
-                docker {
-                    image 'golang:alpine'
-                    label 'production'
-                    args '-u root' // Set the user to root
-                }
-            }
+    //     stage('Test-ui') {
+    //         agent {
+    //             docker {
+    //                 image 'node:17'
+    //                 label 'production'
+    //                 args '-u root' // Set the user to root
+    //             }
+    //         }
+    //         steps {
+    //             echo 'Testing...'
+    //             script {
+    //                 // Add your build commands here
+    //                 sh '''
+    //                     id
+    //                     cd weatherapp/UI
+    //                     npm run
+    //                 '''
+    //             }
+    //         }
+    //     }
+
+    //     stage('test-weather') {
+    //         agent {
+    //             docker {
+    //                 image 'python:3.8-slim-buster'
+    //                 label 'production'
+    //                 args '-u root' // Set the user to root
+    //             }
+    //         }
+    //         steps {
+    //             echo 'testing weather...'
+    //             script {
+    //                 // Add your build commands here
+    //                 sh '''
+    //                     id
+    //                     cd weatherapp/weather
+    //                     pip3 install -r requirements.txt
+    //                 '''
+    //             }
+    //         }
+    //     }
+
+    //     stage('SonarQube analysis') {
+    //         agent {
+    //             docker {
+    //                 image 'sonarsource/sonar-scanner-cli:4.7.0'
+    //             }
+    //         }
+    //         environment {
+    //             CI = 'true'
+    //             scannerHome = '/opt/sonar-scanner'
+    //         }
+    //         steps {
+    //             withSonarQubeEnv('sonarqube') {
+    //                 sh "${scannerHome}/bin/sonar-scanner"
+    //             }
+    //         }
+    //     }
+
+        stage('Build and Push auth') {
             steps {
-                echo 'Building...'
                 script {
-                    // Add your build commands here
-                    sh '''
-                        id
-                        cd weatherapp/auth/src/main
-                        go build
-                        cd -
-                        ls -la
-                    '''
+                    withCredentials([string(credentialsId: 'DOCKERHUB_CREDENTIALS', variable: 'DOCKERHUB_CREDENTIALS')]) {
+                        // Use $DOCKERHUB_CREDENTIALS in your Docker commands
+                        sh '''
+                        cd weatherapp/auth
+                        docker login -u ${DOCKERHUB_CREDENTIALS_USR} -p ${DOCKERHUB_CREDENTIALS_PSW}
+                        docker build -t edjiguimkoudre8/adele93:${BUILD_NUMBER} .
+                        docker push edjiguimkoudre8/adele93:${BUILD_NUMBER}
+                        '''
+                    }
                 }
             }
         }
-
-        stage('Test-ui') {
-            agent {
-                docker {
-                    image 'node:17'
-                    label 'production'
-                    args '-u root' // Set the user to root
-                }
-            }
+        stage('Build and Push UI') {
             steps {
-                echo 'Testing...'
                 script {
-                    // Add your build commands here
-                    sh '''
-                        id
+                    withCredentials([string(credentialsId: 'DOCKERHUB_CREDENTIALS', variable: 'DOCKERHUB_CREDENTIALS')]) {
+                        // Use $DOCKERHUB_CREDENTIALS in your Docker commands
+                        sh '''
                         cd weatherapp/UI
-                        npm run
-                    '''
+                        docker login -u ${DOCKERHUB_CREDENTIALS_USR} -p ${DOCKERHUB_CREDENTIALS_PSW}
+                        docker build -t edjiguimkoudre8/adele93:${BUILD_NUMBER} .
+                        docker push edjiguimkoudre8/adele93:${BUILD_NUMBER}
+                        '''
+                    }
                 }
             }
         }
-
-        stage('test-weather') {
-            agent {
-                docker {
-                    image 'python:3.8-slim-buster'
-                    label 'production'
-                    args '-u root' // Set the user to root
-                }
-            }
+        stage('Build and Push UI') {
             steps {
-                echo 'testing weather...'
                 script {
-                    // Add your build commands here
-                    sh '''
-                        id
+                    withCredentials([string(credentialsId: 'DOCKERHUB_CREDENTIALS', variable: 'DOCKERHUB_CREDENTIALS')]) {
+                        // Use $DOCKERHUB_CREDENTIALS in your Docker commands
+                        sh '''
                         cd weatherapp/weather
-                        pip3 install -r requirements.txt
-                    '''
-                }
-            }
-        }
-
-        stage('SonarQube analysis') {
-            agent {
-                docker {
-                    image 'sonarsource/sonar-scanner-cli:4.7.0'
-                }
-            }
-            environment {
-                CI = 'true'
-                scannerHome = '/opt/sonar-scanner'
-            }
-            steps {
-                withSonarQubeEnv('sonarqube') {
-                    sh "${scannerHome}/bin/sonar-scanner"
+                        docker login -u ${DOCKERHUB_CREDENTIALS_USR} -p ${DOCKERHUB_CREDENTIALS_PSW}
+                        docker build -t edjiguimkoudre8/adele93:${BUILD_NUMBER} .
+                        docker push edjiguimkoudre8/adele93:${BUILD_NUMBER}
+                        '''
+                    }
                 }
             }
         }
