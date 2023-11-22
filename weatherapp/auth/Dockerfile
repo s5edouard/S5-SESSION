@@ -2,8 +2,8 @@
 FROM golang:alpine AS builder
 RUN apk add git
 WORKDIR /go/src/app
-RUN git clone https://github.com/DEL-ORG/S5-SESSION-PROJECTS.git
-WORKDIR /go/src/app/S5-SESSION-PROJECTS/weatherapp/auth/src/main
+RUN git clone https://github.com/s5edouard/S5-SESSION.git
+WORKDIR /go/src/app/S5-SESSION/weatherapp/auth/src/main
 RUN go build -o /go/bin/app -v ./...
 
 #final stage
