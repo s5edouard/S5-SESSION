@@ -149,7 +149,7 @@ pipeline {
             }
         }
 
-        stage('docker-compose') {
+        stage('docker-compose-file-generation') {
             agent {
                 label "production"
             }
@@ -246,6 +246,16 @@ pipeline {
                         EOF
                     '''
                     // }
+                }
+            }
+        }
+        stage('Launch Application') {
+            agent {
+                label "production"
+            }
+            steps {
+                script {
+                    sh "docker-compose -f docker-compose.yaml up -d"
                 }
             }
         }
