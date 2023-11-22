@@ -101,7 +101,7 @@ pipeline {
         stage('Build and Push auth') {
             steps {
                 sh '''
-                cd weatherapp/auth
+                cd $WORKSPACE/weatherapp/auth
                 docker build -t edjiguimkoudre8/adele93:${BUILD_NUMBER} .
                 docker push edjiguimkoudre8/adele93:${BUILD_NUMBER}
                 '''
@@ -110,7 +110,7 @@ pipeline {
         stage('Build and Push UI') {
             steps {
                 sh '''
-                cd weatherapp/UI
+               cd $WORKSPACE/weatherapp/UI
                 docker build -t edjiguimkoudre8/adele93:${BUILD_NUMBER} .
                 docker push edjiguimkoudre8/adele93:${BUILD_NUMBER}
                 '''
@@ -119,7 +119,7 @@ pipeline {
         stage('Build and Push weather') {
             steps {
                 sh '''
-                cd weatherapp/auth
+                cd $WORKSPACE/weatherapp/weather
                 docker build -t edjiguimkoudre8/adele93:${BUILD_NUMBER} .
                 docker push edjiguimkoudre8/adele93:${BUILD_NUMBER}
                 '''
