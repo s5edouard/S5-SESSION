@@ -6,87 +6,87 @@ pipeline {
         DOCKERHUB_CREDENTIALS=credentials('Dockerhub')
     }
     stages {
-        // stage('Build-auth') {
-        //     agent {
-        //         docker {
-        //             image 'golang:alpine'
-        //             label 'production'
-        //             args '-u root' // Set the user to root
-        //         }
-        //     }
-        //     steps {
-        //         echo 'Building...'
-        //         script {
-        //             // Add your build commands here
-        //             sh '''
-        //                 id
-        //                 cd weatherapp/auth/src/main
-        //                 go build
-        //                 cd -
-        //                 ls -la
-        //             '''
-        //         }
-        //     }
-        // }
+        stage('Build-auth') {
+            agent {
+                docker {
+                    image 'golang:alpine'
+                    label 'production'
+                    args '-u root' // Set the user to root
+                }
+            }
+            steps {
+                echo 'Building...'
+                script {
+                    // Add your build commands here
+                    sh '''
+                        id
+                        cd weatherapp/auth/src/main
+                        go build
+                        cd -
+                        ls -la
+                    '''
+                }
+            }
+        }
 
-        // stage('Test-ui') {
-        //     agent {
-        //         docker {
-        //             image 'node:17'
-        //             label 'production'
-        //             args '-u root' // Set the user to root
-        //         }
-        //     }
-        //     steps {
-        //         echo 'Testing...'
-        //         script {
-        //             // Add your build commands here
-        //             sh '''
-        //                 id
-        //                 cd weatherapp/UI
-        //                 npm run
-        //             '''
-        //         }
-        //     }
-        // }
+        stage('Test-ui') {
+            agent {
+                docker {
+                    image 'node:17'
+                    label 'production'
+                    args '-u root' // Set the user to root
+                }
+            }
+            steps {
+                echo 'Testing...'
+                script {
+                    // Add your build commands here
+                    sh '''
+                        id
+                        cd weatherapp/UI
+                        npm run
+                    '''
+                }
+            }
+        }
 
-        // stage('test-weather') {
-        //     agent {
-        //         docker {
-        //             image 'python:3.8-slim-buster'
-        //             label 'production'
-        //             args '-u root' // Set the user to root
-        //         }
-        //     }
-        //     steps {
-        //         echo 'testing weather...'
-        //         script {
-        //             // Add your build commands here
-        //             sh '''
-        //                 id
-        //                 cd weatherapp/weather
-        //                 pip3 install -r requirements.txt
-        //             '''
-        //         }
-        //     }
-        // }
+        stage('test-weather') {
+            agent {
+                docker {
+                    image 'python:3.8-slim-buster'
+                    label 'production'
+                    args '-u root' // Set the user to root
+                }
+            }
+            steps {
+                echo 'testing weather...'
+                script {
+                    // Add your build commands here
+                    sh '''
+                        id
+                        cd weatherapp/weather
+                        pip3 install -r requirements.txt
+                    '''
+                }
+            }
+        }
 
-        // stage('SonarQube analysis') {
-        //     agent {
-        //         docker {
-        //             image 'sonarsource/sonar-scanner-cli:4.7.0'
-        //         }
-        //     }
-        //     environment {
-        //         CI = 'true'
-        //         scannerHome = '/opt/sonar-scanner'
-        //     }
-        //     steps {
-        //         withSonarQubeEnv('sonarqube') {
-        //             sh "${scannerHome}/bin/sonar-scanner"
-        //         }
-        //     }
-        // }
+        stage('SonarQube analysis') {
+            agent {
+                docker {
+                    image 'sonarsource/sonar-scanner-cli:4.7.0'
+                }
+            }
+            environment {
+                CI = 'true'
+                scannerHome = '/opt/sonar-scanner'
+            }
+            steps {
+                withSonarQubeEnv('sonarqube') {
+                    sh "${scannerHome}/bin/sonar-scanner"
+                }
+            }
+        }
         stage('Login to Docker') {
             steps {
                 script {
@@ -111,7 +111,7 @@ pipeline {
             steps {
                 sh '''
                cd $WORKSPACE/weatherapp/UI
-                docker build -t edjiguimkoudre8/adele93-UI:${BUILD_NUMBER} .
+                docker build -t edjiguimkoudre8/adele93-ui:${BUILD_NUMBER} .
                 docker push edjiguimkoudre8/adele93-UI:${BUILD_NUMBER}
                 '''
             }
