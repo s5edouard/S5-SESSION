@@ -87,11 +87,16 @@ pipeline {
                 }
             }
         }
-        stage('Login') {
-			steps {
-				sh 'echo $DOCKERHUB_CREDENTIALS_PSW | docker login -u $DOCKERHUB_CREDENTIALS_USR --password-stdin'
-			}
-		}
+        stage('Login to Docker') {
+            steps {
+                script {
+                    // Docker login
+                    withCredentials([usernamePassword(credentialsId: 'Dockerhub', passwordVariable: 'DOCKER_PASSWORD', usernameVariable: 'DOCKER_USERNAME')]) {
+                        sh "echo $DOCKER_PASSWORD | docker login -u $DOCKER_USERNAME --password-stdin"
+                    }
+                }
+            }
+        }
 
         stage('Build and Push auth') {
             steps {
@@ -100,7 +105,6 @@ pipeline {
                 docker build -t edjiguimkoudre8/adele93:${BUILD_NUMBER} .
                 docker push edjiguimkoudre8/adele93:${BUILD_NUMBER}
                 '''
-                
             }
         }
         stage('Build and Push UI') {
