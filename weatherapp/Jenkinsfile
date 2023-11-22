@@ -112,7 +112,7 @@ pipeline {
                 sh '''
                cd $WORKSPACE/weatherapp/UI
                 docker build -t edjiguimkoudre8/adele93-ui:${BUILD_NUMBER} .
-                docker push edjiguimkoudre8/adele93-UI:${BUILD_NUMBER}
+                docker push edjiguimkoudre8/adele93-ui:${BUILD_NUMBER}
                 '''
             }
         }
