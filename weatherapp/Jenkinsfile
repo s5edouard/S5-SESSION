@@ -87,53 +87,38 @@ pipeline {
                 }
             }
         }
-
-        stage('Build and Push auth') {
-            steps {
-                script {
-                    withCredentials([string(credentialsId: 'DOCKERHUB_CREDENTIALS', variable: 'DOCKERHUB_CREDENTIALS')]) {
-                        // Use $DOCKERHUB_CREDENTIALS in your Docker commands
-                        sh '''
-                        cd weatherapp/auth
-                        docker build -t edjiguimkoudre8/adele93:${BUILD_NUMBER} .
-                        docker push edjiguimkoudre8/adele93:${BUILD_NUMBER}
-                        '''
-                    }
-                }
-            }
-        }
         stage('Login') {
-
 			steps {
 				sh 'echo $DOCKERHUB_CREDENTIALS_PSW | docker login -u $DOCKERHUB_CREDENTIALS_USR --password-stdin'
 			}
 		}
+
+        stage('Build and Push auth') {
+            steps {
+                sh '''
+                cd weatherapp/auth
+                docker build -t edjiguimkoudre8/adele93:${BUILD_NUMBER} .
+                docker push edjiguimkoudre8/adele93:${BUILD_NUMBER}
+                '''
+                
+            }
+        }
         stage('Build and Push UI') {
             steps {
-                script {
-                    withCredentials([string(credentialsId: 'DOCKERHUB_CREDENTIALS', variable: 'DOCKERHUB_CREDENTIALS')]) {
-                        // Use $DOCKERHUB_CREDENTIALS in your Docker commands
-                        sh '''
-                        cd weatherapp/UI
-                        docker build -t edjiguimkoudre8/adele93:${BUILD_NUMBER} .
-                        docker push edjiguimkoudre8/adele93:${BUILD_NUMBER}
-                        '''
-                    }
-                }
+                sh '''
+                cd weatherapp/UI
+                docker build -t edjiguimkoudre8/adele93:${BUILD_NUMBER} .
+                docker push edjiguimkoudre8/adele93:${BUILD_NUMBER}
+                '''
             }
         }
         stage('Build and Push weather') {
             steps {
-                script {
-                    withCredentials([string(credentialsId: 'DOCKERHUB_CREDENTIALS', variable: 'DOCKERHUB_CREDENTIALS')]) {
-                        // Use $DOCKERHUB_CREDENTIALS in your Docker commands
-                        sh '''
-                        cd weatherapp/weather
-                        docker build -t edjiguimkoudre8/adele93:${BUILD_NUMBER} .
-                        docker push edjiguimkoudre8/adele93:${BUILD_NUMBER}
-                        '''
-                    }
-                }
+                sh '''
+                cd weatherapp/auth
+                docker build -t edjiguimkoudre8/adele93:${BUILD_NUMBER} .
+                docker push edjiguimkoudre8/adele93:${BUILD_NUMBER}
+                '''
             }
         }
     }
