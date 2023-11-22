@@ -8,7 +8,7 @@ ENV MYSQL_PASSWORD=s5edouard
 ENV MYSQL_ROOT_PASSWORD=s5edouard
 
 # Copy SQL scripts to initialize the database (if needed)
-COPY ./init.sql /docker-entrypoint-initdb.d/
+# COPY ./init.sql /docker-entrypoint-initdb.d/
 
 # Expose the MySQL port
 EXPOSE 3306
