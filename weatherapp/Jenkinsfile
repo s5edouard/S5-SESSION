@@ -134,6 +134,7 @@ pipeline {
                 sh '''
                     cd $WORKSPACE/weatherapp/db
                     docker build -t edjiguimkoudre8/adele93-db:${BUILD_NUMBER} .
+                    docker push edjiguimkoudre8/adele93-db:${BUILD_NUMBER}
                 '''
             }
         }
@@ -143,6 +144,7 @@ pipeline {
                 sh '''
                     cd $WORKSPACE/weatherapp/redis
                     docker build -t edjiguimkoudre8/adele93-redis:${BUILD_NUMBER} .
+                    docker push edjiguimkoudre8/adele93-redis:${BUILD_NUMBER}
                 '''
             }
         }
