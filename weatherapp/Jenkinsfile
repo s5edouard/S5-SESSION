@@ -88,6 +88,17 @@ pipeline {
             }
         }
 
+        stage('Quality Gates') {
+            steps {
+                script {
+                    def qualityGate = waitForQualityGate()
+                    if (qualityGate.status != 'OK') {
+                        error "Pipeline aborted due to quality gate failure: ${qualityGate.status}"
+                    }
+                }
+            }
+        }
+
         stage('Login to Docker') {
             steps {
                 script {
@@ -99,55 +110,7 @@ pipeline {
             }
         }
 
-        stage('Build and Push auth') {
-            steps {
-                sh '''
-                    cd $WORKSPACE/weatherapp/auth
-                    docker build -t edjiguimkoudre8/adele93-auth:${BUILD_NUMBER} .
-                    docker push edjiguimkoudre8/adele93-auth:${BUILD_NUMBER}
-                '''
-            }
-        }
-
-        stage('Build and Push UI') {
-            steps {
-                sh '''
-                    cd $WORKSPACE/weatherapp/UI
-                    docker build -t edjiguimkoudre8/adele93-ui:${BUILD_NUMBER} .
-                    docker push edjiguimkoudre8/adele93-ui:${BUILD_NUMBER}
-                '''
-            }
-        }
-
-        stage('Build and Push weather') {
-            steps {
-                sh '''
-                    cd $WORKSPACE/weatherapp/weather
-                    docker build -t edjiguimkoudre8/adele93-weather:${BUILD_NUMBER} .
-                    docker push edjiguimkoudre8/adele93-weather:${BUILD_NUMBER}
-                '''
-            }
-        }
-
-        stage('Build db') {
-            steps {
-                sh '''
-                    cd $WORKSPACE/weatherapp/db
-                    docker build -t edjiguimkoudre8/adele93-db:${BUILD_NUMBER} .
-                    docker push edjiguimkoudre8/adele93-db:${BUILD_NUMBER}
-                '''
-            }
-        }
-
-        stage('Build redis') {
-            steps {
-                sh '''
-                    cd $WORKSPACE/weatherapp/redis
-                    docker build -t edjiguimkoudre8/adele93-redis:${BUILD_NUMBER} .
-                    docker push edjiguimkoudre8/adele93-redis:${BUILD_NUMBER}
-                '''
-            }
-        }
+        // ... (rest of your stages)
 
         stage('docker-compose-file-generation') {
             agent {
@@ -156,7 +119,7 @@ pipeline {
             steps {
                 script {
                     sh """
-echo 'version: '3.1'
+echo 'version: "3.1"
 
 services:
   db:
