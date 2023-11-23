@@ -155,14 +155,8 @@ pipeline {
             }
             steps {
                 script {
-                    // withCredentials([
-                    //     string(credentialsId: 'WEATHERAPP_REDIS_PASSWORD', variable: 'WEATHERAPP_REDIS_PASSWORD'),
-                    //     string(credentialsId: 'WEATHERAPP_MYSQL_ROOT_PASSWORD', variable: 'WEATHERAPP_MYSQL_ROOT_PASSWORD'),
-                    //     string(credentialsId: 'WEATHERAPP_DB_PASSWORD', variable: 'WEATHERAPP_DB_PASSWORD'),
-                    //     string(credentialsId: 'WEATHERAPP_APIKEY', variable: 'WEATHERAPP_APIKEY')
-                    // ]) {
-                    sh '''
-version: '3.1'
+                    sh """
+echo 'version: '3.1'
 
 services:
   db:
@@ -243,11 +237,12 @@ networks:
 volumes:
   db-data:
   redis-data:
-'''
-                    // }
+' > docker-compose.yaml
+"""
                 }
             }
         }
+
         stage('Launch Application') {
             agent {
                 label "production"
