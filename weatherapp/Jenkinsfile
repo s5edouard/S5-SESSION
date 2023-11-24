@@ -109,6 +109,55 @@ pipeline {
                 }
             }
         }
+                stage('Build and Push auth') {
+            steps {
+                sh '''
+                    cd $WORKSPACE/weatherapp/auth
+                    docker build -t edjiguimkoudre8/adele93-auth:${BUILD_NUMBER} .
+                    docker push edjiguimkoudre8/adele93-auth:${BUILD_NUMBER}
+                '''
+            }
+        }
+
+        stage('Build and Push UI') {
+            steps {
+                sh '''
+                    cd $WORKSPACE/weatherapp/UI
+                    docker build -t edjiguimkoudre8/adele93-ui:${BUILD_NUMBER} .
+                    docker push edjiguimkoudre8/adele93-ui:${BUILD_NUMBER}
+                '''
+            }
+        }
+
+        stage('Build and Push weather') {
+            steps {
+                sh '''
+                    cd $WORKSPACE/weatherapp/weather
+                    docker build -t edjiguimkoudre8/adele93-weather:${BUILD_NUMBER} .
+                    docker push edjiguimkoudre8/adele93-weather:${BUILD_NUMBER}
+                '''
+            }
+        }
+
+        stage('Build db') {
+            steps {
+                sh '''
+                    cd $WORKSPACE/weatherapp/db
+                    docker build -t edjiguimkoudre8/adele93-db:${BUILD_NUMBER} .
+                    docker push edjiguimkoudre8/adele93-db:${BUILD_NUMBER}
+                '''
+            }
+        }
+
+        stage('Build redis') {
+            steps {
+                sh '''
+                    cd $WORKSPACE/weatherapp/redis
+                    docker build -t edjiguimkoudre8/adele93-redis:${BUILD_NUMBER} .
+                    docker push edjiguimkoudre8/adele93-redis:${BUILD_NUMBER}
+                '''
+            }
+        }
 
         // ... (rest of your stages)
 
@@ -124,7 +173,7 @@ echo 'version: "3.1"
 services:
   db:
     container_name: weatherapp-db
-    image: edjiguimkoudre8/adele93-db:latest
+    image: edjiguimkoudre8/adele93-db:${BUILD_NUMBER}
     environment:
       MYSQL_ROOT_PASSWORD: s5edouard
     volumes:
@@ -147,7 +196,7 @@ services:
 
   weather:
     container_name: weatherapp-weather
-    image: edjiguimkoudre8/adele93-weather:latest
+    image: edjiguimkoudre8/adele93-weather:${BUILD_NUMBER}
     expose:
       - 5000
     environment:
@@ -161,7 +210,7 @@ services:
 
   auth:
     container_name: weatherapp-auth
-    image: edjiguimkoudre8/adele93-auth:latest
+    image: edjiguimkoudre8/adele93-auth:${BUILD_NUMBER}
     environment:
       DB_HOST: db
       DB_PASSWORD: s5edouard
@@ -175,7 +224,7 @@ services:
 
   ui:
     container_name: weatherapp-ui
-    image: edjiguimkoudre8/adele93-ui:latest
+    image: edjiguimkoudre8/adele93-ui:${BUILD_NUMBER}
     environment:
       s5edouard: s5edouard
       AUTH_HOST: auth
