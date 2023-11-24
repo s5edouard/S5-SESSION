@@ -124,7 +124,7 @@ echo 'version: "3.1"
 services:
   db:
     container_name: weatherapp-db
-    image: edjiguimkoudre8/adele93-db:${BUILD_NUMBER}
+    image: edjiguimkoudre8/adele93-db:latest
     environment:
       MYSQL_ROOT_PASSWORD: s5edouard
     volumes:
@@ -147,7 +147,7 @@ services:
 
   weather:
     container_name: weatherapp-weather
-    image: edjiguimkoudre8/adele93-weather:${BUILD_NUMBER}
+    image: edjiguimkoudre8/adele93-weather:latest
     expose:
       - 5000
     environment:
@@ -161,7 +161,7 @@ services:
 
   auth:
     container_name: weatherapp-auth
-    image: edjiguimkoudre8/adele93-auth:${BUILD_NUMBER}
+    image: edjiguimkoudre8/adele93-auth:latest
     environment:
       DB_HOST: db
       DB_PASSWORD: s5edouard
@@ -175,7 +175,7 @@ services:
 
   ui:
     container_name: weatherapp-ui
-    image: edjiguimkoudre8/adele93-ui:${BUILD_NUMBER}
+    image: edjiguimkoudre8/adele93-ui:latest
     environment:
       s5edouard: s5edouard
       AUTH_HOST: auth
