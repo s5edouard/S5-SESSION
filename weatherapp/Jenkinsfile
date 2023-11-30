@@ -345,7 +345,7 @@ volumes:
             steps {
                 sh '''
             sleep 10
-            bash weatherapp/website-login.sh
+            bash weatherapp/website_login.sh
                 '''
             }
         }
