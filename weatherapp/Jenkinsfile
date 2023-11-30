@@ -112,7 +112,7 @@ pipeline {
         stage('Build and Push auth') {
             when {
                 expression {
-                    return env.BRANCH_NAME == 'develop'
+                    return params.BRANCH_NAME == 'develop'
                 }
             }
             steps {
@@ -127,7 +127,7 @@ pipeline {
         stage('Build and Push UI') {
             when {
                 expression {
-                    return env.BRANCH_NAME == 'develop'
+                    return params.BRANCH_NAME == 'develop'
                 }
             }
             steps {
@@ -142,9 +142,10 @@ pipeline {
         stage('Build and Push weather') {
             when {
                 expression {
-                    return env.BRANCH_NAME == 'develop'
+                    return params.BRANCH_NAME == 'develop'
                 }
             }
+
             steps {
                 sh '''
                     cd $WORKSPACE/weatherapp/weather
@@ -157,9 +158,10 @@ pipeline {
         stage('Build db') {
             when {
                 expression {
-                    return env.BRANCH_NAME == 'develop'
+                    return params.BRANCH_NAME == 'develop'
                 }
             }
+
             steps {
                 sh '''
                     cd $WORKSPACE/weatherapp/db
@@ -172,9 +174,10 @@ pipeline {
         stage('Build redis') {
             when {
                 expression {
-                    return env.BRANCH_NAME == 'develop'
+                    return params.BRANCH_NAME == 'develop'
                 }
-            }
+        }
+
             steps {
                 sh '''
                     cd $WORKSPACE/weatherapp/redis
