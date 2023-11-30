@@ -243,7 +243,7 @@ services:
       DB_HOST: db
       DB_PASSWORD: s5edouard
     expose:
-      - 8080
+      - 8081
     networks:
       - weatherapp
     restart: always
@@ -256,7 +256,7 @@ services:
     environment:
       s5edouard: s5edouard
       AUTH_HOST: auth
-      AUTH_PORT: 8080
+      AUTH_PORT: 8081
       WEATHER_HOST: weather
       WEATHER_PORT: 5000
       REDIS_USER: redis
@@ -316,7 +316,7 @@ volumes:
             steps {
                 script {
                     sh '''
-                    docker-compose down --remove orphans 
+                    docker-compose down --remove-orphans 
                     docker-compose -f docker-compose.yaml up -d
                     '''
                 }
