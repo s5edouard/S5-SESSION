@@ -112,8 +112,7 @@ pipeline {
         stage('Build and Push auth') {
             when {
                 expression {
-                    echo "Branch Name: ${params.BRANCH_NAME}"
-                    return params.BRANCH_NAME == 'develop'
+                     env.GIT_BRANCH == 'origin/develop'
                 }
             }
             steps {
@@ -128,8 +127,7 @@ pipeline {
         stage('Build and Push UI') {
             when {
                 expression {
-                    echo "Branch Name: ${params.BRANCH_NAME}"
-                    return params.BRANCH_NAME == 'develop'
+                     env.GIT_BRANCH == 'origin/develop'
                 }
             }
             steps {
@@ -144,8 +142,7 @@ pipeline {
         stage('Build and Push weather') {
             when {
                 expression {
-                    echo "Branch Name: ${params.BRANCH_NAME}"
-                    return params.BRANCH_NAME == 'develop'
+                     env.GIT_BRANCH == 'origin/develop'
                 }
             }
 
@@ -161,8 +158,7 @@ pipeline {
         stage('Build db') {
             when {
                 expression {
-                    echo "Branch Name: ${params.BRANCH_NAME}"
-                    return params.BRANCH_NAME == 'develop'
+                     env.GIT_BRANCH == 'origin/develop'
                 }
             }
 
@@ -178,8 +174,7 @@ pipeline {
         stage('Build redis') {
             when {
                 expression {
-                    echo "Branch Name: ${params.BRANCH_NAME}"
-                    return params.BRANCH_NAME == 'develop'
+                     env.GIT_BRANCH == 'origin/develop'
                 }
         }
 
