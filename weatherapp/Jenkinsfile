@@ -234,7 +234,7 @@ services:
     restart: always
     depends_on:
       - db
-      - redis  # Weather depends on both db and redis
+      - redis  
 
   auth:
     container_name: weatherapp-auth
@@ -248,7 +248,7 @@ services:
       - weatherapp
     restart: always
     depends_on:
-      - weather  # Auth depends on the weather service
+      - weather  
 
   ui:
     container_name: weatherapp-ui
@@ -269,7 +269,7 @@ services:
       - weatherapp
     restart: always
     depends_on:
-      - auth  # UI depends on Auth
+      - auth 
 
 networks:
   weatherapp:
