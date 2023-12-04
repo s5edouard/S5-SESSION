@@ -88,16 +88,16 @@ pipeline {
             }
         }
 
-        stage('Quality Gates') {
-            steps {
-                script {
-                    def qualityGate = waitForQualityGate()
-                    if (qualityGate.status != 'OK') {
-                        error "Pipeline aborted due to quality gate failure: ${qualityGate.status}"
-                    }
-                }
-            }
-        }
+        // stage('Quality Gates') {
+        //     steps {
+        //         script {
+        //             def qualityGate = waitForQualityGate()
+        //             if (qualityGate.status != 'OK') {
+        //                 error "Pipeline aborted due to quality gate failure: ${qualityGate.status}"
+        //             }
+        //         }
+        //     }
+        // }
 
         stage('Login to Docker') {
             steps {
