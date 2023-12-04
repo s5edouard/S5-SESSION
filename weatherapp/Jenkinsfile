@@ -198,8 +198,8 @@ pipeline {
 	          withCredentials([
 	            string(credentialsId: 'WEATHERAPP_MYSQL_ROOT_PASSWORD', variable: 'WEATHERAPP_MYSQL_ROOT_PASSWORD'),
 	            string(credentialsId: 'WEATHERAPP_REDIS_PASSWORD', variable: 'WEATHERAPP_REDIS_PASSWORD'),
-	            string(credentialsId: 'WEATHERAPP_DBPASSWORD', variable: 'WEATHERAPP_DBPASSWORD'),
-                string(credentialsId: 'WEATHERAPP_API_KEY', variable: 'WEATHERAPP_API_KEY')
+	            string(credentialsId: 'WEATHERAPP_DB_PASSWORD', variable: 'WEATHERAPP_DB_PASSWORD'),
+                string(credentialsId: 'WEATHERAPP_APIKEY', variable: 'WEATHERAPP_APIKEY')
 	          ]) {
                     sh """
 echo 'version: "3.1"
@@ -234,7 +234,7 @@ services:
     expose:
       - 5000
     environment:
-      APIKEY: ${WEATHERAPP_API_KEY}
+      APIKEY: ${WEATHERAPP_APIKEY}
     networks:
       - weatherapp
     restart: always
@@ -247,7 +247,7 @@ services:
     image: edjiguimkoudre8/adele93-auth:${BUILD_NUMBER}
     environment:
       DB_HOST: db
-      DB_PASSWORD: ${WEATHERAPP_DBPASSWORD}
+      DB_PASSWORD: ${WEATHERAPP_DB_PASSWORD}
     expose:
       - 8080
     networks:
@@ -260,7 +260,7 @@ services:
     container_name: weatherapp-ui
     image: edjiguimkoudre8/adele93-ui:${BUILD_NUMBER}
     environment:
-      s5edouard: ${WEATHERAPP_DBPASSWORD}
+      s5edouard: ${WEATHERAPP_DB_PASSWORD}
       AUTH_HOST: auth
       AUTH_PORT: 8080
       WEATHER_HOST: weather
