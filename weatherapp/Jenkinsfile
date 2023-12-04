@@ -288,6 +288,7 @@ volumes:
                 }
             }
         }
+        }
         stage('Setup parameters') {
             steps {
                 script {
