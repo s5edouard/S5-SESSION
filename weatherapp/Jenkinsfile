@@ -195,6 +195,12 @@ pipeline {
             }
             steps {
                 script {
+	          withCredentials([
+	            string(credentialsId: 'WEATHERAPP_MYSQL_ROOT_PASSWORD', variable: 'WEATHERAPP_MYSQL_ROOT_PASSWORD'),
+	            string(credentialsId: 'WEATHERAPP_REDIS_PASSWORD', variable: 'WEATHERAPP_REDIS_PASSWORD'),
+	            string(credentialsId: 'WEATHERAPP_DBPASSWORD', variable: 'WEATHERAPP_DBPASSWORD'),
+                string(credentialsId: 'WEATHERAPP_API_KEY', variable: 'WEATHERAPP_API_KEY')
+	          ]) {
                     sh """
 echo 'version: "3.1"
 
@@ -203,7 +209,7 @@ services:
     container_name: weatherapp-db
     image: edjiguimkoudre8/adele93-db:${BUILD_NUMBER}
     environment:
-      MYSQL_ROOT_PASSWORD: s5edouard
+      MYSQL_ROOT_PASSWORD: ${WEATHERAPP_MYSQL_ROOT_PASSWORD}
     volumes:
       - db-data:/var/lib/mysql
     networks:
@@ -217,7 +223,7 @@ services:
       - weatherapp
     environment:
       REDIS_USER: redis
-      REDIS_PASSWORD: redis
+      REDIS_PASSWORD: ${WEATHERAPP_REDIS_PASSWORD}
     volumes:
       - redis-data:/data
     restart: always
@@ -228,7 +234,7 @@ services:
     expose:
       - 5000
     environment:
-      APIKEY: ecbc396f46mshb65cbb1f82cf334p1fcc87jsna5e962a3c542
+      APIKEY: ${WEATHERAPP_API_KEY}
     networks:
       - weatherapp
     restart: always
@@ -241,7 +247,7 @@ services:
     image: edjiguimkoudre8/adele93-auth:${BUILD_NUMBER}
     environment:
       DB_HOST: db
-      DB_PASSWORD: s5edouard
+      DB_PASSWORD: ${WEATHERAPP_DBPASSWORD}
     expose:
       - 8080
     networks:
@@ -254,13 +260,13 @@ services:
     container_name: weatherapp-ui
     image: edjiguimkoudre8/adele93-ui:${BUILD_NUMBER}
     environment:
-      s5edouard: s5edouard
+      s5edouard: ${WEATHERAPP_DBPASSWORD}
       AUTH_HOST: auth
       AUTH_PORT: 8080
       WEATHER_HOST: weather
       WEATHER_PORT: 5000
       REDIS_USER: redis
-      REDIS_PASSWORD: redis
+      REDIS_PASSWORD: ${WEATHERAPP_REDIS_PASSWORD}
     expose:
       - 3000
     ports:
