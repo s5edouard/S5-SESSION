@@ -6,7 +6,7 @@ pipeline {
         DOCKERHUB_CREDENTIALS = credentials('Dockerhub')
     }
     stages {
-        stage('Build-auth') {
+        stage('test-auth') {
             agent {
                 docker {
                     image 'golang:alpine'
