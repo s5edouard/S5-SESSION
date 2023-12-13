@@ -279,6 +279,7 @@ services:
 
 networks:
   weatherapp:
+    driver: bridge
 
 volumes:
   db-data:
