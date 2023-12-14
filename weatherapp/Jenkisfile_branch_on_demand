@@ -1,0 +1,385 @@
+pipeline {
+    agent {
+        label{"demand-pipeline"}
+    }
+    environment {
+        DOCKERHUB_CREDENTIALS = credentials('Dockerhub')
+    }
+    stages {
+        stage('Setup parameters') {
+            steps {
+                script {
+                    properties([
+                        parameters([
+
+                             string(name: 'BRANCH_TO_DEPLOY_FROM',
+                             defaultValue: '',
+                            description: '''Enter the Branch name you would like to deploy'''),
+
+
+                             string(name: 'DEPLOYER_NAME',
+                             defaultValue: '',
+                            description: '''Enter your name'''),
+
+
+                        choice(
+                            choices: ['300', '450', '600', '750', '900'], 
+                            name: 'KEEP_ALIVE'
+                                 
+                                ),
+
+                        ])
+                    ])
+                }
+            }
+        }
+        stage{
+            Steps{
+                sh '''
+                cd $WORKSPACE/S5-SESSION/weatherapp
+                bash check_branch_ondemand.sh
+                '''
+            }
+        }
+        stage('Login to Docker') {
+            steps {
+                script {
+                    // Docker login
+                    withCredentials([usernamePassword(credentialsId: 'Dockerhub', passwordVariable: 'DOCKER_PASSWORD', usernameVariable: 'DOCKER_USERNAME')]) {
+                        sh "echo $DOCKER_PASSWORD | docker login -u $DOCKER_USERNAME --password-stdin"
+                    }
+                }
+            }
+        }
+        stage('cloning') {
+			steps {
+				sh '''
+                rm -rf * || true 
+                git clone -b $BRANCH_TO_DEPLOY_FROM git@github.com:s5edouard/S5-SESSION.git  
+                cd $WORKSPACE/S5-SESSION-PROJECTS
+                  '''
+			}
+		}
+        stage('test-auth') {
+            agent {
+                docker {
+                    image 'golang:alpine'
+                    label 'demand-pipeline'
+                    args '-u root' // Set the user to root
+                }
+            }
+            steps {
+                echo 'Building...'
+                script {
+                    // Add your build commands here
+                    sh '''
+                        id
+                        cd weatherapp/auth/src/main
+                        go build
+                        cd -
+                        ls -la
+                    '''
+                }
+            }
+        }
+
+        stage('Test-ui') {
+            agent {
+                docker {
+                    image 'node:17'
+                    label 'demand-pipeline'
+                    args '-u root' // Set the user to root
+                }
+            }
+            steps {
+                echo 'Testing...'
+                script {
+                    // Add your build commands here
+                    sh '''
+                        id
+                        cd weatherapp/UI
+                        npm run
+                    '''
+                }
+            }
+        }
+
+        stage('test-weather') {
+            agent {
+                docker {
+                    image 'python:3.8-slim-buster'
+                    label 'demand-pipeline'
+                    args '-u root' // Set the user to root
+                }
+            }
+            steps {
+                echo 'testing weather...'
+                script {
+                    // Add your build commands here
+                    sh '''
+                        id
+                        cd weatherapp/weather
+                        pip3 install -r requirements.txt
+                    '''
+                }
+            }
+        }
+
+        stage('SonarQube analysis') {
+            agent {
+                docker {
+                    image 'sonarsource/sonar-scanner-cli:4.7.0'
+                }
+            }
+            environment {
+                CI = 'true'
+                scannerHome = '/opt/sonar-scanner'
+            }
+            steps {
+                withSonarQubeEnv('sonarqube') {
+                    sh "${scannerHome}/bin/sonar-scanner"
+                }
+            }
+        }
+
+        stage('Quality Gates') {
+            steps {
+                script {
+                    def qualityGate = waitForQualityGate()
+                    if (qualityGate.status != 'OK') {
+                        error "Pipeline aborted due to quality gate failure: ${qualityGate.status}"
+                    }
+                }
+            }
+        }
+
+        // stage('Login to Docker') {
+        //     steps {
+        //         script {
+        //             // Docker login
+        //             withCredentials([usernamePassword(credentialsId: 'Dockerhub', passwordVariable: 'DOCKER_PASSWORD', usernameVariable: 'DOCKER_USERNAME')]) {
+        //                 sh "echo $DOCKER_PASSWORD | docker login -u $DOCKER_USERNAME --password-stdin"
+        //             }
+        //         }
+        //     }
+        // }
+        stage('Build auth') {
+            steps {
+                sh '''
+                    cd $WORKSPACE/weatherapp/auth
+                    docker build -t edjiguimkoudre8/adele93-auth:${BUILD_NUMBER} .
+                '''
+            }
+        }
+
+        stage('Build UI') {
+            steps {
+                sh '''
+                    cd $WORKSPACE/weatherapp/UI
+                    docker build -t edjiguimkoudre8/adele93-ui:${BUILD_NUMBER} .
+                '''
+            }
+        }
+
+        stage('Build weather') {
+
+            steps {
+                sh '''
+                    cd $WORKSPACE/weatherapp/weather
+                    docker build -t edjiguimkoudre8/adele93-weather:${BUILD_NUMBER} .
+                '''
+            }
+        }
+
+        stage('Build db') {
+
+            steps {
+                sh '''
+                    cd $WORKSPACE/weatherapp/db
+                    docker build -t edjiguimkoudre8/adele93-db:${BUILD_NUMBER} .
+                '''
+            }
+        }
+
+        stage('Build redis') {
+            steps {
+                sh '''
+                    cd $WORKSPACE/weatherapp/redis
+                    docker build -t edjiguimkoudre8/adele93-redis:${BUILD_NUMBER} .
+                '''
+            }
+        }
+
+        stage('docker-compose-file-generation') {
+            agent {
+                label "demand-pipeline"
+            }
+            steps {
+                script {
+	          withCredentials([
+	            string(credentialsId: 'WEATHERAPP_MYSQL_ROOT_PASSWORD', variable: 'WEATHERAPP_MYSQL_ROOT_PASSWORD'),
+	            string(credentialsId: 'WEATHERAPP_REDIS_PASSWORD', variable: 'WEATHERAPP_REDIS_PASSWORD'),
+	            string(credentialsId: 'WEATHERAPP_DB_PASSWORD', variable: 'WEATHERAPP_DB_PASSWORD'),
+                string(credentialsId: 'WEATHERAPP_APIKEY', variable: 'WEATHERAPP_APIKEY')
+	          ]) {
+                    sh """
+echo 'version: "3.1"
+
+services:
+  db:
+    container_name: weatherapp-db
+    image: edjiguimkoudre8/adele93-db:${BUILD_NUMBER}
+    environment:
+      MYSQL_ROOT_PASSWORD: ${WEATHERAPP_MYSQL_ROOT_PASSWORD}
+    volumes:
+      - db-data:/var/lib/mysql
+    networks:
+      - weatherapp
+    restart: always
+
+  redis:
+    container_name: weatherapp-redis
+    image: redis
+    networks:
+      - weatherapp
+    environment:
+      REDIS_USER: redis
+      REDIS_PASSWORD: ${WEATHERAPP_REDIS_PASSWORD}
+    volumes:
+      - redis-data:/data
+    restart: always
+
+  weather:
+    container_name: weatherapp-weather
+    image: edjiguimkoudre8/adele93-weather:${BUILD_NUMBER}
+    expose:
+      - 5000
+    environment:
+      APIKEY: ${WEATHERAPP_APIKEY}
+    networks:
+      - weatherapp
+    restart: always
+    depends_on:
+      - db
+      - redis  
+
+  auth:
+    container_name: weatherapp-auth
+    image: edjiguimkoudre8/adele93-auth:${BUILD_NUMBER}
+    environment:
+      DB_HOST: db
+      DB_PASSWORD: ${WEATHERAPP_DB_PASSWORD}
+    expose:
+      - 8080
+    networks:
+      - weatherapp
+    restart: always
+    depends_on:
+      - weather  
+
+  ui:
+    container_name: weatherapp-ui
+    image: edjiguimkoudre8/adele93-ui:${BUILD_NUMBER}
+    environment:
+      s5edouard: ${WEATHERAPP_DB_PASSWORD}
+      AUTH_HOST: auth
+      AUTH_PORT: 8080
+      WEATHER_HOST: weather
+      WEATHER_PORT: 5000
+      REDIS_USER: redis
+      REDIS_PASSWORD: ${WEATHERAPP_REDIS_PASSWORD}
+    expose:
+      - 3000
+    ports:
+      - 3000:3000
+    networks:
+      - weatherapp
+    restart: always
+    depends_on:
+      - auth 
+
+networks:
+  weatherapp:
+
+volumes:
+  db-data:
+  redis-data:
+' > /home/ubuntu/docker-compose.yaml
+"""
+                }
+            }
+        }
+        }
+        stage('Setup parameters') {
+            steps {
+                script {
+                    properties([
+                        parameters([
+                        
+                        choice(
+                                    choices: ['Yes', 'No'], 
+                                    name: 'deployweatherapp'
+                           
+                                ),
+
+                             string(name: 'WARNTIME',
+                             defaultValue: '3',
+                            description: '''Warning time (in minutes) before starting upgrade'''),
+
+                          string(
+                                defaultValue: 'develop',
+                                name: 'Please_leave_this_section_as_it_is',
+                                trim: true
+                            ),
+                        ])
+                    ])
+                }
+            }
+        }
+
+        stage('Launch Application') {
+            agent {
+                label "demand-pipeline"
+            }
+            steps {
+                script {
+                    sh '''
+                    cd /home/ubuntu
+                    docker-compose down --remove-orphans 
+                    docker-compose -f docker-compose.yaml up -d
+                    '''
+                }
+            }
+        }
+        stage('checking deployment') {
+	      agent { 
+                label "demand-pipeline"
+                 }
+         when{ 
+          expression {
+            env.GIT_BRANCH == '$BRANCH_TO_DEPLOY_FROM' }
+            }
+            steps {
+                sh '''
+            
+            bash weatherapp/check.sh
+                '''
+            }
+        }
+        stage('checking website') {
+	      agent { 
+                label "demand-pipeline"
+                 }
+         when{ 
+          expression {
+            env.GIT_BRANCH == 'origin/develop' }
+            }
+            steps {
+                sh '''
+            sleep 10
+            bash weatherapp/website_login.sh
+                '''
+            }
+        }
+    }
+}
