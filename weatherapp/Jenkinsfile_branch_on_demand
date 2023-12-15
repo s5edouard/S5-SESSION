@@ -36,7 +36,8 @@ pipeline {
         stage('confirming the branch to build') {
             steps{
                 sh '''
-                cd /weatherapp
+                pwd
+                ls
                 bash check_branch_ondemand.sh
                 '''
             }
