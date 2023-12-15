@@ -1,6 +1,6 @@
 pipeline {
     agent {
-        label{"demand-pipeline"}
+        label'demand-pipeline'
     }
     environment {
         DOCKERHUB_CREDENTIALS = credentials('Dockerhub')
@@ -34,7 +34,7 @@ pipeline {
             }
         }
         stage{
-            Steps{
+            steps{
                 sh '''
                 cd $WORKSPACE/S5-SESSION/weatherapp
                 bash check_branch_ondemand.sh
