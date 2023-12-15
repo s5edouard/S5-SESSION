@@ -33,7 +33,7 @@ pipeline {
                 }
             }
         }
-        stage{
+        stage{'confirming the branch to build'} {
             steps{
                 sh '''
                 cd $WORKSPACE/S5-SESSION/weatherapp
@@ -310,7 +310,7 @@ volumes:
             }
         }
         }
-        stage('Setup parameters') {
+        stage('warning parameters') {
             steps {
                 script {
                     properties([
