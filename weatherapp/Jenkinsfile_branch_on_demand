@@ -38,6 +38,7 @@ pipeline {
                 sh '''
                 pwd
                 ls
+                cd /weatherapp
                 bash check_branch_ondemand.sh
                 '''
             }
