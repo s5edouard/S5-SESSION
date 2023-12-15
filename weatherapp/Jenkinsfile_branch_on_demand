@@ -33,7 +33,7 @@ pipeline {
                 }
             }
         }
-        stage{'confirming the branch to build'} {
+        stage('confirming the branch to build') {
             steps{
                 sh '''
                 cd $WORKSPACE/S5-SESSION/weatherapp
