@@ -36,6 +36,7 @@ pipeline {
         stage('confirming the branch to build') {
             steps{
                 sh '''
+                id
                 pwd
                 ls
                 cd /weatherapp
