@@ -36,7 +36,7 @@ pipeline {
         stage('confirming the branch to build') {
             steps{
                 sh '''
-                cd $WORKSPACE/S5-SESSION/weatherapp
+                cd /S5-SESSION/weatherapp
                 bash check_branch_ondemand.sh
                 '''
             }
