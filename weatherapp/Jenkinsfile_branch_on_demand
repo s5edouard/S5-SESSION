@@ -68,7 +68,7 @@ fi
 				sh '''
                 rm -rf * || true 
                 git checkout $BRANCH_TO_DEPLOY_FROM git@github.com:s5edouard/S5-SESSION.git  
-                cd $WORKSPACE/S5-SESSION-PROJECTS
+                cd $WORKSPACE/S5-SESSION
                   '''
 			}
 		}

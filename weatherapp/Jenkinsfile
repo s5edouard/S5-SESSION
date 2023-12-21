@@ -99,13 +99,15 @@ pipeline {
         //     }
         // }
 
-        stage('Login to Docker') {
+        stage('Login to Docker Hub') {  
             steps {
                 script {
-                    // Docker login
-                    withCredentials([usernamePassword(credentialsId: 'Dockerhub', passwordVariable: 'DOCKER_PASSWORD', usernameVariable: 'DOCKER_USERNAME')]) {
-                        sh "echo $DOCKER_PASSWORD | docker login -u $DOCKER_USERNAME --password-stdin"
-                    }
+                    // Define your Docker Hub username and access token
+                    def dockerHubUser = 'edjiguimkoudre8'
+                    def dockerHubAccessToken = 'dckr_pat_6BbztXn5vvmA5F_N5myAOpAIiGE'
+
+                    // Docker login command with access token
+                    sh "echo ${dockerHubAccessToken} | docker login -u ${dockerHubUser} --password-stdin"
                 }
             }
         }
