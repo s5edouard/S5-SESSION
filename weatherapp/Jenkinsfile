@@ -2,9 +2,6 @@ pipeline {
     agent {
         label 'production'
     }
-    environment {
-        DOCKERHUB_CREDENTIALS = credentials('Dockerhub')
-    }
     stages {
         stage('test-auth') {
             agent {
